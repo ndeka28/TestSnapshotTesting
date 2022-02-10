@@ -5,26 +5,23 @@ $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;andro
 
 
 # Create an AVD with the image we've previously installed
-$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager --verbose create avd --force --name Pixel_4_API_30 --abi x86_64 --device "pixel" --package "system-images;android-30;default;x86_64"
+$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager --verbose create avd --force --name Pixel_3_API_30 --abi x86_64 --device "pixel" --package "system-images;android-30;default;x86_64"
 
 #Start the emulator
-$ANDROID_HOME/emulator/emulator -avd  Pixel_4_API_30 -wipe-data &
+$ANDROID_HOME/emulator/emulator -avd  Pixel_3_API_30 -wipe-data &
 EMULATOR_PID=$!
 
 # Wait for the emulator to boot up completely.
-# This script is actually a bit naive. There are various suggestions out there
 # as to make this more robust. One alternative is to utilize the "adb wait-for-device" command.
 booted=0
 while [ "$booted" != "1" ]
 do
   echo "Waiting for emulator..."
-  booted=`$ANDROID_HOME/platform-tools/adb shell getprop dev.bootcomplete`
+  booted=$($ANDROID_HOME/platform-tools/adb shell getprop dev.bootcomplete)
   sleep 1
 done
 
-rm -rf app/screenshots
+./gradlew clean devDebugExecuteScreenshotTests
 
-./gradlew clean devDebugExecuteScreenshotTests -Precord
+kill -9 $EMULATOR_PID
 
-
-kill $EMULATOR_PID
